@@ -111,7 +111,7 @@ def Kmatrix(A, B, C, D, dpoles):
     k = ct.acker(A, B, desired_poles)
     return k
 
-def TransferFunc(w, A, B, C, D, k, N):
+def TransferFunc(w, A, B, C, D, k, N, fmin, fmax):
     """
     Computes the transfer function of the controlled system.
 
@@ -136,11 +136,21 @@ def TransferFunc(w, A, B, C, D, k, N):
     # there is the TF of a single output.
     H = np.zeros((6, len(w)),dtype = 'complex_')
 
+    w_min = 2 * np.pi * fmin
+    w_max = 2 * np.pi * fmax
     # Compute the transfer function
     for i in range(len(w)):
+        # apply the controller only in the frequency range fmin<f<fmax
+        if (w[i] < w_min or w[i] > w_max):
+            AA = A
+            Nbar = 1
+        else:
+            AA = (A - (B @ k))
+            Nbar = N
+
         # array of len=number of output whose elements are the values of the TF
         # of each output at given frequency w
-        H_lenOUT = C @ np.linalg.inv((1j*w[i])*np.eye(12) - (A-(B@k))) @ B * N
+        H_lenOUT = C @ np.linalg.inv((1j*w[i])*np.eye(12) - AA ) @ B * Nbar
         H_lenOUT = H_lenOUT.squeeze() # remove empty dimension
 
         #store each value of the TF in the corresponding row of H
@@ -339,9 +349,9 @@ if __name__ == '__main__':
     k = Kmatrix(A, B, C, D, dpoles)
 
     # control parameters
+    fmin, fmax = 0.05, 1.6  # frequency range to control
     r = 0   # reference input
     N = -1 / (C @ np.linalg.inv(A - (B @ k)) @ B)[0]  # scale the ref input
-    print(N)
 
     # Simulation
     physical_params = [*M, *K, *gamma, dt]
@@ -352,7 +362,7 @@ if __name__ == '__main__':
                       control_params, file_name = None))
 
     # Compute the transfer function
-    Tf, poles = TransferFunc(wn, A, B, C, D, k, N)
+    Tf, poles = TransferFunc(wn, A, B, C, D, k, N, fmin, fmax)
     # Compute the magnitude of the transfer function
     H = (np.real(Tf) ** 2 + np.imag(Tf) ** 2) ** (1 / 2)
 
