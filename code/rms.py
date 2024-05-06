@@ -50,7 +50,7 @@ plt.yscale('log')
 plt.xscale('log')
 plt.xlim(1e-2, 2)
 plt.ylim(1e-15, 1e-3)
-plt.grid(True, ls='-', alpha=0.3, lw=0.5)
+plt.grid(True, which='both', ls='-', alpha=0.3, lw=0.5)
 plt.minorticks_on()
 
 
@@ -64,12 +64,12 @@ plt.legend()
 fig = plt.figure(figsize=(5, 5))
 plt.title('Mirror RMS displacement', size=13)
 plt.xlabel('Frequency [Hz]', size=12)
-plt.ylabel('RMS [m/$\sqrt{Hz}$]', size =12)
+plt.ylabel('RMS [m]', size =12)
 plt.yscale('log')
 plt.xscale('log')
 plt.xlim(1e-2, 2)
 plt.ylim(1e-15, 1e-4)
-plt.grid(True, ls='-', alpha=0.3, lw=0.5)
+plt.grid(True, which='both', ls='-', alpha=0.3, lw=0.5)
 plt.minorticks_on()
 
 
